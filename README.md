@@ -49,8 +49,10 @@ git clone https://github.com/hpekkan/SteamDataHarvester.git
 To use SteamDataHarvester, follow these steps:
 
 1. Add your Steam API key and desired initial SteamID to the script.
-2. Run ```python steam_data_harvester.py``` in your terminal.
-5. Data will be saved in the 'user_data' folder.
+2. Run ```python scrapper.py``` in your terminal.
+3. Data will be saved in the 'user_data' folder.
+4. Run ```python merger.py``` in your terminal.
+5. Merged csv file be saved in './{counter}_user_data.csv'.
 
 ## Contributing to SteamDataHarvester
 To contribute, follow these steps:
