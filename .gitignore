@@ -1,0 +1,5 @@
+# Ignore user data folder
+user_data/
+# Ignore .history folder
+.history
+.history/
