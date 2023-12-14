@@ -8,7 +8,7 @@ SteamDataHarvester is a multi-threaded Python tool for efficiently scraping Stea
 - Collects game playtime data from user profiles
 - Navigates through friends' networks to gather extended data
 - Avoids duplicate processing with a smart tracking system
-- Compliant with Steam's API rate limits
+
 
 ## Prerequisites
 Before you begin, ensure you have met the following requirements:
@@ -32,7 +32,7 @@ SteamDataHarvester is a multi-threaded Python tool for efficiently scraping Stea
 - Collects game playtime data from user profiles
 - Navigates through friends' networks to gather extended data
 - Avoids duplicate processing with a smart tracking system
-- Compliant with Steam's API rate limits
+
 
 ## Prerequisites
 Before you begin, ensure you have met the following requirements:
