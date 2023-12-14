@@ -7,32 +7,58 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 def fetch_user_profile(api_key, steam_id):
-    """Fetches user profile information."""
+    """Fetches user profile information with error handling."""
     url = f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={api_key}&steamids={steam_id}"
-    response = requests.get(url)
-    profile_data = response.json() if response.status_code == 200 else None
-    if profile_data and 'players' in profile_data['response']:
-        return profile_data['response']['players'][0] if profile_data['response']['players'] else None
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching user profile: {e}")
+        return None
+
+    try:
+        profile_data = response.json()
+        if 'players' in profile_data.get('response', {}):
+            return profile_data['response']['players'][0] if profile_data['response']['players'] else None
+    except ValueError:
+        print("Invalid JSON response")
     return None
 
 def fetch_games(api_key, steam_id, game_names):
-    """Fetches games for a given Steam ID and replaces AppIDs with game names."""
+    """Fetches games for a given Steam ID and replaces AppIDs with game names, with error handling."""
     url = f"https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={api_key}&steamid={steam_id}&format=json"
-    response = requests.get(url)
-    games_data = response.json() if response.status_code == 200 else None
-    
-    if games_data and 'games' in games_data['response']:
-        for game in games_data['response']['games']:
-            game['name'] = game_names.get(str(game['appid']), "Unknown Game")
-        return games_data['response']['games']
-    else:
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching games: {e}")
         return None
 
+    try:
+        games_data = response.json()
+        if 'games' in games_data.get('response', {}):
+            for game in games_data['response']['games']:
+                game['name'] = game_names.get(str(game['appid']), "Unknown Game")
+            return games_data['response']['games']
+    except ValueError:
+        print("Invalid JSON response")
+    return None
+
 def fetch_friends(api_key, steam_id):
-    """Fetches friends list for a given Steam ID."""
+    """Fetches friends list for a given Steam ID with error handling."""
     url = f"https://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key={api_key}&steamid={steam_id}&relationship=friend"
-    response = requests.get(url)
-    return response.json() if response.status_code == 200 else None
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching friends list: {e}")
+        return None
+
+    try:
+        return response.json() if 'friendslist' in response.json() else None
+    except ValueError:
+        print("Invalid JSON response")
+        return None
 
 def sanitize_filename(filename):
     """Sanitizes the filename by removing or replacing invalid characters."""
@@ -47,8 +73,6 @@ def save_games_to_csv(games, steam_id, username, folder):
     df = pd.DataFrame(games)
     file_path = os.path.join(folder, f'{sanitized_username}_{steam_id}_games.csv')
     df.to_csv(file_path, index=False)
-
-# Other functions remain the same...
 
 def process_user(api_key, steam_id, game_names, folder_name, processed_users_file):
     """Process a single user - fetch games, save to CSV, and get friends."""
@@ -88,12 +112,10 @@ def is_user_processed(filename, steam_id):
     except FileNotFoundError:
         return False
 
-# Create directories and files if they don't exist
 folder_name = 'user_data'
 os.makedirs(folder_name, exist_ok=True)
 processed_users_file = os.path.join(folder_name, 'processed_users.txt')
 
-# Load game names
 game_names = load_game_names('steam_games_list.json')
 
 api_key = 'YOUR_API_KEY'

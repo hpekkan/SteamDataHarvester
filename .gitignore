@@ -3,3 +3,5 @@ user_data/
 # Ignore .history folder
 .history
 .history/
+
+*.csv
